@@ -1,0 +1,44 @@
+/* Custom Logo Colors - Based on provided blue logo */
+:root {
+    --logo-blue-primary: #1E40AF;    /* Blue-700 - Main logo color */
+    --logo-blue-secondary: #3B82F6;  /* Blue-500 - Secondary accent */
+    --logo-blue-light: #DBEAFE;      /* Blue-100 - Light backgrounds */
+    --logo-blue-dark: #1D4ED8;       /* Blue-600 - Hover states */
+}
+
+/* Logo animation for loading states */
+@keyframes logoGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+    }
+}
+
+.logo-glow {
+    animation: logoGlow 2s ease-in-out infinite;
+}
+
+/* Brand gradient matching the logo */
+.brand-gradient {
+    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+}
+
+/* Custom scrollbar to match theme */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3B82F6;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #1E40AF;
+}
