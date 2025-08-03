@@ -26,6 +26,11 @@ class Outlet extends Model
         'longitude' => 'decimal:8',
     ];
 
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
     /**
      * Get users assigned to this outlet
      */

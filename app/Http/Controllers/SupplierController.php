@@ -57,11 +57,15 @@ class SupplierController extends Controller
      */
     public function create(Request $request)
     {
+        $outlets = \App\Models\Outlet::active()->get(['id', 'name']);
+        
         // Determine which view to render based on current route
         $routeName = $request->route()->getName();
 
         if (str_starts_with($routeName, 'manager.')) {
-            return Inertia::render('Manager/Suppliers/Create');
+            return Inertia::render('Manager/Suppliers/Create', [
+                'outlets' => $outlets
+            ]);
         }
 
         return Inertia::render('Supplier/Create');
@@ -80,7 +84,8 @@ class SupplierController extends Controller
             'address' => 'nullable|string',
             'contact_person' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
+            'outlet_id' => 'required|exists:outlets,id'
         ]);
 
         Supplier::create($validated);
@@ -121,12 +126,15 @@ class SupplierController extends Controller
      */
     public function edit(Request $request, Supplier $supplier)
     {
+        $outlets = \App\Models\Outlet::active()->get(['id', 'name']);
+        
         // Determine which view to render based on current route
         $routeName = $request->route()->getName();
 
         if (str_starts_with($routeName, 'manager.')) {
             return Inertia::render('Manager/Suppliers/Edit', [
-                'supplier' => $supplier
+                'supplier' => $supplier,
+                'outlets' => $outlets
             ]);
         }
 
@@ -148,7 +156,8 @@ class SupplierController extends Controller
             'address' => 'nullable|string',
             'contact_person' => 'nullable|string|max:255',
             'status' => 'required|in:active,inactive',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
+            'outlet_id' => 'required|exists:outlets,id'
         ]);
 
         $supplier->update($validated);

@@ -5,7 +5,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
-export default function Edit({ supplier }) {
+export default function Edit({ supplier, outlets }) {
     const { data, setData, put, processing, errors } = useForm({
         name: supplier.name || '',
         company: supplier.company || '',
@@ -15,6 +15,7 @@ export default function Edit({ supplier }) {
         contact_person: supplier.contact_person || '',
         status: supplier.status || 'active',
         notes: supplier.notes || '',
+        outlet_id: supplier.outlet_id || '',
     });
 
     const submit = (e) => {
@@ -46,6 +47,26 @@ export default function Edit({ supplier }) {
                         <div className="p-6 text-gray-900">
                             <form onSubmit={submit} className="space-y-6">
                                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                    <div>
+                                        <InputLabel htmlFor="outlet_id" value="Outlet" />
+                                        <select
+                                            id="outlet_id"
+                                            name="outlet_id"
+                                            value={data.outlet_id}
+                                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            onChange={(e) => setData('outlet_id', e.target.value)}
+                                            required
+                                        >
+                                            <option value="">Select Outlet</option>
+                                            {outlets.map((outlet) => (
+                                                <option key={outlet.id} value={outlet.id}>
+                                                    {outlet.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <InputError message={errors.outlet_id} className="mt-2" />
+                                    </div>
+
                                     <div>
                                         <InputLabel htmlFor="name" value="Supplier Name" />
                                         <TextInput

@@ -7,7 +7,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 
-export default function Create({ outlets, suppliers, products }) {
+export default function Create({ outlets = [], suppliers = [], products = [] }) {
     const [selectedOutlet, setSelectedOutlet] = useState(null);
     const [selectedSupplier, setSelectedSupplier] = useState(null);
     const [items, setItems] = useState([]);

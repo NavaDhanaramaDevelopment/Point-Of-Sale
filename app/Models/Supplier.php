@@ -17,6 +17,7 @@ class Supplier extends Model
         'address',
         'contact_person',
         'status',
+        'outlet_id',
         'notes'
     ];
 

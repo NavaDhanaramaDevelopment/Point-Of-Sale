@@ -13,6 +13,8 @@ use App\Http\Controllers\OutletController;
 use App\Http\Controllers\CustomerDebtController;
 use App\Http\Controllers\SupplierDebtController;
 use App\Http\Controllers\OutletTransferController;
+use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;

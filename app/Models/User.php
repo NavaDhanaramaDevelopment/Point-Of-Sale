@@ -231,6 +231,11 @@ class User extends Authenticatable
         return $this->hasMany(Outlet::class, 'super_admin_id');
     }
 
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class, 'outlet_id');
+    }
+
     /**
      * Check if trial has expired
      */

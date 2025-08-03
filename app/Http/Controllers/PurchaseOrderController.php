@@ -6,6 +6,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
 use App\Models\Product;
+use App\Models\Outlet;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +64,8 @@ class PurchaseOrderController extends Controller
     public function create(Request $request)
     {
         $suppliers = Supplier::active()->get(['id', 'name', 'company']);
-        $products = Product::active()->get(['id', 'name', 'sku', 'stock', 'price']);
+        $products = Product::active()->get(['id', 'name', 'code', 'stock_quantity', 'purchase_price']);
+        $outlets = \App\Models\Outlet::active()->get(['id', 'name']);
 
         // Determine which view to render based on current route
         $routeName = $request->route()->getName();
@@ -72,6 +74,7 @@ class PurchaseOrderController extends Controller
             return Inertia::render('Manager/PurchaseOrders/Create', [
                 'suppliers' => $suppliers,
                 'products' => $products,
+                'outlets' => $outlets,
                 'poNumber' => PurchaseOrder::generatePoNumber()
             ]);
         }
