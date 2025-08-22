@@ -1,23 +1,30 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
 
-export default function Report({ auth, products }) {
-    const { data, setData, post, processing, errors } = useForm({
-        product_id: '',
-        type: '',
-        start_date: '',
-        end_date: ''
+import { Head, router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+
+export default function Report({ auth, products, movements = [], summary = null, filters = {} }) {
+    const [data, setData] = useState({
+        product_id: filters.product_id || '',
+        type: filters.type || '',
+        start_date: filters.start_date || '',
+        end_date: filters.end_date || ''
     });
-    const [report, setReport] = useState(null);
+
+    useEffect(() => {
+        setData({
+            product_id: filters.product_id || '',
+            type: filters.type || '',
+            start_date: filters.start_date || '',
+            end_date: filters.end_date || ''
+        });
+    }, [filters]);
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('stock.report.data'), {
+        router.get(route('stock.report'), data, {
             preserveScroll: true,
-            onSuccess: (page) => {
-                setReport(page.props.movements ? page.props : null);
-            }
+            replace: true,
         });
     };
 
@@ -85,39 +92,40 @@ export default function Report({ auth, products }) {
                                 <div className="md:col-span-4 flex items-end justify-end">
                                     <button
                                         type="submit"
-                                        disabled={processing}
-                                        className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+                                        disabled={false}
+                                        className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
                                     >
-                                        {processing ? 'Memproses...' : 'Tampilkan Laporan'}
+                                        Tampilkan Laporan
                                     </button>
                                 </div>
                             </form>
 
-                            {report && (
+
+                            {summary && (
                                 <div className="mb-8">
                                     <h3 className="text-lg font-semibold mb-2">Ringkasan</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                         <div className="p-4 bg-green-50 rounded-lg">
                                             <div className="text-xs text-gray-500">Total Stock In</div>
-                                            <div className="text-2xl font-bold text-green-700">{report.summary.total_in}</div>
+                                            <div className="text-2xl font-bold text-green-700">{summary.total_in}</div>
                                         </div>
                                         <div className="p-4 bg-red-50 rounded-lg">
                                             <div className="text-xs text-gray-500">Total Stock Out</div>
-                                            <div className="text-2xl font-bold text-red-700">{report.summary.total_out}</div>
+                                            <div className="text-2xl font-bold text-red-700">{summary.total_out}</div>
                                         </div>
                                         <div className="p-4 bg-blue-50 rounded-lg">
                                             <div className="text-xs text-gray-500">Penyesuaian</div>
-                                            <div className="text-2xl font-bold text-blue-700">{report.summary.total_adjustments}</div>
+                                            <div className="text-2xl font-bold text-blue-700">{summary.total_adjustments}</div>
                                         </div>
                                         <div className="p-4 bg-purple-50 rounded-lg">
                                             <div className="text-xs text-gray-500">Total Transfer</div>
-                                            <div className="text-xl font-bold text-purple-700">{report.summary.total_transfers}</div>
+                                            <div className="text-xl font-bold text-purple-700">{summary.total_transfers}</div>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            {report && (
+                            {movements && (
                                 <div>
                                     <h3 className="text-lg font-semibold mb-2">Detail Pergerakan Stock</h3>
                                     <div className="overflow-x-auto">
@@ -135,10 +143,10 @@ export default function Report({ auth, products }) {
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
-                                                {report.movements.length === 0 && (
+                                                {movements.length === 0 && (
                                                     <tr><td colSpan={8} className="px-4 py-2 text-center text-gray-500">Tidak ada data</td></tr>
                                                 )}
-                                                {report.movements.map((movement) => (
+                                                {movements.map((movement) => (
                                                     <tr key={movement.id}>
                                                         <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{new Date(movement.created_at).toLocaleString('id-ID')}</td>
                                                         <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{movement.product.name}</td>

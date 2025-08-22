@@ -132,7 +132,7 @@ class OutletController extends Controller
                     ->orWhere('code', 'like', '%' . $search . '%')
                     ->orWhere('address', 'like', '%' . $search . '%');
             })
-            ->where('super_admin_id', $superuserid)
+        ->where('super_admin_id', $superuserid)
             ->withCount(['users', 'customers', 'products'])
             ->latest()
             ->get();

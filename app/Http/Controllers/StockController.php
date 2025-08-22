@@ -23,7 +23,7 @@ class StockController extends Controller
 
     public function stockIn(): Response
     {
-        $products = Product::select('id', 'name', 'stock', 'purchase_price')->get();
+        $products = Product::select('id', 'name', 'stock_quantity', 'purchase_price')->get();
 
         return Inertia::render('Stock/StockIn', [
             'products' => $products
@@ -43,7 +43,7 @@ class StockController extends Controller
         $afterStock = $beforeStock + $request->quantity;
 
         // Update stock produk
-        $product->update(['stock' => $afterStock]);
+        $product->update(['stock_quantity' => $afterStock]);
 
         // Catat pergerakan stock
         StockMovement::create([
@@ -62,8 +62,8 @@ class StockController extends Controller
 
     public function stockOut(): Response
     {
-        $products = Product::where('stock', '>', 0)
-            ->select('id', 'name', 'stock', 'sell_price')
+        $products = Product::where('stock_quantity', '>', 0)
+            ->select('id', 'name', 'stock_quantity', 'selling_price')
             ->get();
 
         return Inertia::render('Stock/StockOut', [
@@ -90,7 +90,7 @@ class StockController extends Controller
         $afterStock = $beforeStock - $request->quantity;
 
         // Update stock produk
-        $product->update(['stock' => $afterStock]);
+        $product->update(['stock_quantity' => $afterStock]);
 
         // Catat pergerakan stock
         StockMovement::create([
@@ -109,7 +109,7 @@ class StockController extends Controller
 
     public function adjustment(): Response
     {
-        $products = Product::select('id', 'name', 'stock')->get();
+        $products = Product::select('id', 'name', 'stock_quantity')->get();
 
         return Inertia::render('Stock/Adjustment', [
             'products' => $products
@@ -134,7 +134,7 @@ class StockController extends Controller
         }
 
         // Update stock produk
-        $product->update(['stock' => $afterStock]);
+        $product->update(['stock_quantity' => $afterStock]);
 
         // Catat pergerakan stock
         StockMovement::create([
@@ -151,17 +151,10 @@ class StockController extends Controller
         return redirect()->route('stock.index')->with('success', 'Stock berhasil disesuaikan');
     }
 
-    public function report(): Response
+    public function report(Request $request): Response
     {
         $products = Product::select('id', 'name')->get();
 
-        return Inertia::render('Stock/Report', [
-            'products' => $products
-        ]);
-    }
-
-    public function reportData(Request $request)
-    {
         $query = StockMovement::with(['product', 'user']);
 
         if ($request->product_id) {
@@ -181,13 +174,22 @@ class StockController extends Controller
 
         $movements = $query->orderBy('created_at', 'desc')->get();
 
-        return response()->json([
+        $summary = [
+            'total_in' => $movements->where('type', 'in')->sum('quantity'),
+            'total_out' => $movements->where('type', 'out')->sum('quantity'),
+            'total_adjustments' => $movements->where('type', 'adjustment')->count(),
+            'total_transfers' => $movements->where('type', 'transfer')->count()
+        ];
+
+        return Inertia::render('Stock/Report', [
+            'products' => $products,
             'movements' => $movements,
-            'summary' => [
-                'total_in' => $movements->where('type', 'in')->sum('quantity'),
-                'total_out' => $movements->where('type', 'out')->sum('quantity'),
-                'total_adjustments' => $movements->where('type', 'adjustment')->count(),
-                'total_transfers' => $movements->where('type', 'transfer')->count()
+            'summary' => $summary,
+            'filters' => [
+                'product_id' => $request->product_id,
+                'type' => $request->type,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
             ]
         ]);
     }
