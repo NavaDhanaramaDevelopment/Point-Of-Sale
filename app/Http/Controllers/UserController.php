@@ -420,11 +420,12 @@ class UserController extends Controller
             ->when($role, function ($query) use ($role) {
                 $query->where('role', $role);
             })
+            ->where('super_admin_id', $user->id)
             ->with('outlet')
             ->latest()
             ->get();
 
-        $outlets = \App\Models\Outlet::where('is_active', true)->get();
+        $outlets = \App\Models\Outlet::where('is_active', true)->where('super_admin_id', $user->id)->get();
 
         return Inertia::render('Manager/Users/Index', [
             'users' => $users,
@@ -441,7 +442,8 @@ class UserController extends Controller
      */
     public function managerCreate()
     {
-        $outlets = \App\Models\Outlet::where('is_active', true)->get();
+        $user = auth()->user();
+        $outlets = \App\Models\Outlet::where('is_active', true)->where('super_admin_id', $user->id)->get();
 
         return Inertia::render('Manager/Users/Create', [
             'outlets' => $outlets
@@ -468,7 +470,8 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'outlet_id' => $validated['outlet_id'],
-            'is_active' => $validated['is_active'] ?? true
+            'is_active' => $validated['is_active'] ?? true,
+            'super_admin_id' => auth()->user()->id
         ]);
 
         return redirect()->route('manager.users.index')
@@ -480,12 +483,13 @@ class UserController extends Controller
      */
     public function managerEdit(User $user)
     {
+        $userLogin = auth()->user();
         // Check if manager can edit this user (only admin and kasir)
         if (!in_array($user->role, ['admin', 'kasir'])) {
             abort(403, 'You can only edit admin and kasir users.');
         }
 
-        $outlets = \App\Models\Outlet::where('is_active', true)->get();
+        $outlets = \App\Models\Outlet::where('is_active', true)->where('super_admin_id', $userLogin->id)->get();
 
         return Inertia::render('Manager/Users/Edit', [
             'user' => $user,

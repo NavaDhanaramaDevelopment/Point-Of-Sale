@@ -53,7 +53,17 @@ class OutletController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
-        Outlet::create($validated);
+        // Set super_admin_id based on user role
+        $user = auth()->user();
+
+        if($user->role == 'manager' || $user->role == 'owner'){
+            $validated['super_admin_id'] = $user->id;
+        } else {
+            $validated['super_admin_id'] = $user->super_admin_id;
+        }
+        
+        $outlet = Outlet::create($validated);
+        
 
         return redirect()->back()
             ->with('success', 'Outlet created successfully.');
@@ -166,6 +176,14 @@ class OutletController extends Controller
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
         ]);
+
+        $user = auth()->user();
+
+        if($user->role == 'manager' || $user->role == 'owner'){
+            $validated['super_admin_id'] = $user->id;
+        } else {
+            $validated['super_admin_id'] = $user->super_admin_id;
+        }
 
         Outlet::create($validated);
 

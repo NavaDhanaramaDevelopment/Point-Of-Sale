@@ -219,6 +219,7 @@ Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')
 });
 
 // Manager Routes
+
 Route::middleware(['auth', 'role:manager,admin,owner'])->prefix('manager')->name('manager.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'managerDashboard'])->name('dashboard');
 

@@ -56,9 +56,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
             {/* Sidebar */}
             <div
-                className={`bg-white w-64 min-h-screen shadow-lg transform ${
-                    showingNavigationDropdown ? 'translate-x-0' : '-translate-x-full'
-                } sm:translate-x-0 transition-transform duration-300 ease-in-out fixed sm:static z-30`}
+                className={`bg-white w-64 min-h-screen shadow-lg ${
+                    showingNavigationDropdown ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'
+                } transition-transform duration-300 ease-in-out fixed sm:relative z-30`}
             >
                 {/* Logo Section */}
                 <div className="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -229,8 +229,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
 
                 {/* User Profile Section */}
-                <div className="border-t border-gray-200 p-4 absolute bottom-0 w-full bg-white">
-                    <Dropdown>
+                <div className="border-t border-gray-200 p-4 sticky bottom-0 left-0 right-0 w-full bg-white mt-auto">
+                    <Dropdown placement="top-start">
                         <Dropdown.Trigger>
                             <button className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 focus:outline-none">
                                 <div className="flex-1 text-left">
@@ -243,7 +243,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             </button>
                         </Dropdown.Trigger>
 
-                        <Dropdown.Content>
+                        <Dropdown.Content align="top" contentClasses="py-1 bg-white shadow-xs">
                             <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
                             <Dropdown.Link href={route('subscription.index')}>Subscription</Dropdown.Link>
                             <Dropdown.Link href={route('logout')} method="post" as="button">
