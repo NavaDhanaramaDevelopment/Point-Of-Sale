@@ -14,16 +14,17 @@ export default function CategoryIndex({ categories }) {
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-blue-50">
+                                <th className="p-2 text-left">Outlet</th>
                                 <th className="p-2 text-left">Nama</th>
-                                <th className="p-2 text-left">Subkategori</th>
                                 <th className="p-2 text-left">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             {categories.map(cat => (
+                                console.log(cat.outlet),
                                 <tr key={cat.id}>
+                                    <td className="p-2">{cat.outlet?.name}</td>
                                     <td className="p-2">{cat.name}</td>
-                                    <td className="p-2">{cat.subcategories?.map(sub => sub.name).join(', ')}</td>
                                     <td className="p-2">
                                         <Link href={route('category.edit', cat.id)} className="text-blue-600 mr-2">Edit</Link>
                                         <button onClick={() => { if(confirm('Hapus kategori?')) router.delete(route('category.destroy', cat.id)); }} className="text-red-600">Hapus</button>

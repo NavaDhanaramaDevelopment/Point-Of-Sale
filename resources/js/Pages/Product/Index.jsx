@@ -72,7 +72,7 @@ export default function ProductIndex({ products, categories, filters }) {
                                         <td className="p-2">{product.barcode}</td>
                                         <td className="p-2">{product.category?.name || '-'}</td>
                                         <td className="p-2">{product.unit}</td>
-                                        <td className="p-2 text-right">{Number(product.sell_price).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 })}</td>
+                                        <td className="p-2 text-right">{Number(product.selling_price).toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 })}</td>
                                         <td className="p-2 text-right">
                                             <span className={product.stock <= product.stock_minimum ? 'text-red-600 font-bold' : ''}>{product.stock}</span>
                                         </td>

@@ -12,8 +12,14 @@ class Product extends Model
 
     protected $fillable = [
         'name', 'description', 'category_id', 'subcategory_id', 'sku', 'barcode', 'unit',
-        'purchase_price', 'sell_price', 'stock', 'stock_minimum', 'image', 'is_active'
+        'purchase_price', 'selling_price', 'stock', 'stock_minimum', 'image', 'is_active',
+        'outlet_id', 'super_admin_id'
     ];
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
 
     /**
      * Scope a query to only include active products.

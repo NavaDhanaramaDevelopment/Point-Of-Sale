@@ -63,9 +63,10 @@ class PurchaseOrderController extends Controller
      */
     public function create(Request $request)
     {
+        $user = auth()->user();
+        $outlets = Outlet::active()->where('super_admin_id', $user->id)->get(['id', 'name']);
         $suppliers = Supplier::active()->get(['id', 'name', 'company']);
         $products = Product::active()->get(['id', 'name', 'code', 'stock_quantity', 'purchase_price']);
-        $outlets = \App\Models\Outlet::active()->get(['id', 'name']);
 
         // Determine which view to render based on current route
         $routeName = $request->route()->getName();

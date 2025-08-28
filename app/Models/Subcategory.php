@@ -9,7 +9,12 @@ class Subcategory extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'category_id'];
+    protected $fillable = ['name', 'category_id', 'outlet_id', 'super_admin_id'];
+
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
 
     public function category()
     {

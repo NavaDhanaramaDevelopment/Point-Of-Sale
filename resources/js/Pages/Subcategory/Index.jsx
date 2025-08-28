@@ -14,6 +14,7 @@ export default function SubcategoryIndex({ subcategories }) {
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-blue-50">
+                                <th className="p-2 text-left">Outlet</th>
                                 <th className="p-2 text-left">Nama</th>
                                 <th className="p-2 text-left">Kategori</th>
                                 <th className="p-2 text-left">Aksi</th>
@@ -22,6 +23,7 @@ export default function SubcategoryIndex({ subcategories }) {
                         <tbody>
                             {subcategories.map(sub => (
                                 <tr key={sub.id}>
+                                    <td className="p-2">{sub.outlet?.name}</td>
                                     <td className="p-2">{sub.name}</td>
                                     <td className="p-2">{sub.category?.name}</td>
                                     <td className="p-2">

@@ -2,14 +2,24 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function CategoryCreate() {
-    const [name, setName] = useState('');
+export default function CategoryCreate({ outlets }) {
+    const [form, setForm] = useState({
+        name: '',
+        outlet_id: ''
+    });
     const [errors, setErrors] = useState({});
+
+    const handleChange = (e) => {
+        setForm(values => ({
+            ...values,
+            [e.target.name]: e.target.value
+        }));
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setErrors({});
-        router.post(route('category.store'), { name }, { onError: setErrors });
+        router.post(route('category.store'), form, { onError: setErrors });
     };
 
     return (
@@ -19,8 +29,31 @@ export default function CategoryCreate() {
                 <div className="bg-white rounded-lg shadow p-6">
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
+                            <label className="block font-semibold mb-1">Outlet</label>
+                            <select 
+                                name="outlet_id"
+                                className="w-full border border-blue-200 rounded-lg px-3 py-2"
+                                value={form.outlet_id}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">Pilih Outlet</option>
+                                {outlets.map(outlet => (
+                                    <option key={outlet.id} value={outlet.id}>{outlet.name}</option>
+                                ))}
+                            </select>
+                            {errors.outlet_id && <div className="text-red-600 text-xs mt-1">{errors.outlet_id}</div>}
+                        </div>
+                        <div>
                             <label className="block font-semibold mb-1">Nama Kategori</label>
-                            <input type="text" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={name} onChange={e => setName(e.target.value)} required />
+                            <input 
+                                type="text" 
+                                name="name"
+                                className="w-full border border-blue-200 rounded-lg px-3 py-2" 
+                                value={form.name} 
+                                onChange={handleChange}
+                                required 
+                            />
                             {errors.name && <div className="text-red-600 text-xs mt-1">{errors.name}</div>}
                         </div>
                         <div className="flex gap-2 mt-4">

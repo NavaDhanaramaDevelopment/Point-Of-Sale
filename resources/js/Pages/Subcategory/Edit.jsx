@@ -2,8 +2,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function SubcategoryEdit({ subcategory, categories }) {
+export default function SubcategoryEdit({ subcategory, categories, outlets }) {
     const [form, setForm] = useState({
+        outlet_id: subcategory.outlet_id || '',
         name: subcategory.name || '',
         category_id: subcategory.category_id || ''
     });
@@ -25,6 +26,22 @@ export default function SubcategoryEdit({ subcategory, categories }) {
             <div className="py-8 max-w-xl mx-auto">
                 <div className="bg-white rounded-lg shadow p-6">
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="block font-semibold mb-1">Outlet</label>
+                            <select 
+                                name="outlet_id"
+                                className="w-full border border-blue-200 rounded-lg px-3 py-2"
+                                value={form.outlet_id}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">Pilih Outlet</option>
+                                {outlets.map(outlet => (
+                                    <option key={outlet.id} value={outlet.id}>{outlet.name}</option>
+                                ))}
+                            </select>
+                            {errors.outlet_id && <div className="text-red-600 text-xs mt-1">{errors.outlet_id}</div>}
+                        </div>
                         <div>
                             <label className="block font-semibold mb-1">Nama Subkategori</label>
                             <input type="text" name="name" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.name} onChange={handleChange} required />

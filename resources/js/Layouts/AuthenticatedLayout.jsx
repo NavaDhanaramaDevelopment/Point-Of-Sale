@@ -43,7 +43,7 @@ export default function AuthenticatedLayout({ header, children }) {
             {/* Mobile menu button */}
             <button
                 onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
-                className="fixed top-4 left-4 z-40 sm:hidden rounded-md p-2 bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:bg-gray-100 focus:text-gray-500 shadow-lg"
+                className="fixed top-4 left-4 z-50 sm:hidden rounded-md p-2 bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:bg-gray-100 focus:text-gray-500 shadow-lg"
             >
                 <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     {!showingNavigationDropdown ? (
@@ -56,9 +56,9 @@ export default function AuthenticatedLayout({ header, children }) {
 
             {/* Sidebar */}
             <div
-                className={`bg-white w-64 min-h-screen shadow-lg ${
+                className={`bg-white w-64 h-screen shadow-lg fixed left-0 top-0 ${
                     showingNavigationDropdown ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'
-                } transition-transform duration-300 ease-in-out fixed sm:relative z-30`}
+                } transition-transform duration-300 ease-in-out z-40 flex flex-col`}
             >
                 {/* Logo Section */}
                 <div className="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -68,7 +68,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
 
                 {/* Navigation Menu */}
-                <div className="mt-4 px-2 overflow-y-auto h-[calc(100vh-12rem)] space-y-4">
+                <div className="flex-1 mt-4 px-2 overflow-y-auto space-y-4">
                     {/* Dashboard Section */}
                     <MenuSection title="Dashboard">
                         {user.role === 'admin' && (
@@ -255,9 +255,9 @@ export default function AuthenticatedLayout({ header, children }) {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0">
+            <div className="flex-1 flex flex-col min-w-0 sm:ml-64">
                 {header && (
-                    <header className="bg-white shadow-sm sm:ml-4 sm:mt-4 rounded-lg">
+                    <header className="bg-white shadow-sm sm:mt-4 rounded-lg">
                         <div className="py-6 px-4 sm:px-6 lg:px-8">
                             {header}
                         </div>

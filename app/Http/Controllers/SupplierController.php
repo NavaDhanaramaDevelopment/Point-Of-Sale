@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Supplier;
+use App\Models\Outlet;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -57,7 +58,13 @@ class SupplierController extends Controller
      */
     public function create(Request $request)
     {
-        $outlets = \App\Models\Outlet::active()->get(['id', 'name']);
+        $user = auth()->user();
+        if($user->role != 'manager'){
+            $superAdminId = $user->super_admin_id;
+        }else{
+            $superAdminId = $user->id;
+        }
+        $outlets = Outlet::active()->where('super_admin_id', $superAdminId)->get(['id', 'name']);
         
         // Determine which view to render based on current route
         $routeName = $request->route()->getName();
@@ -126,7 +133,13 @@ class SupplierController extends Controller
      */
     public function edit(Request $request, Supplier $supplier)
     {
-        $outlets = \App\Models\Outlet::active()->get(['id', 'name']);
+        $user = auth()->user();
+        if($user->role != 'manager'){
+            $superAdminId = $user->super_admin_id;
+        }else{
+            $superAdminId = $user->id;
+        }
+        $outlets = Outlet::active()->where('super_admin_id', $superAdminId)->get(['id', 'name']);
         
         // Determine which view to render based on current route
         $routeName = $request->route()->getName();

@@ -1,9 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
+import BarcodeScanner from '@/Components/BarcodeScanner';
 
-export default function ProductEdit({ product, categories }) {
+export default function ProductEdit({ product, categories, outlets }) {
     const [form, setForm] = useState({
+        outlet_id: product.outlet_id || '',
         name: product.name || '',
         description: product.description || '',
         category_id: product.category_id || '',
@@ -42,13 +44,38 @@ export default function ProductEdit({ product, categories }) {
         }
     };
 
-    // Barcode scan via camera (html5-qrcode)
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setErrors({});
+        const data = new FormData();
+        Object.entries(form).forEach(([k, v]) => v !== null && data.append(k, v));
+        router.post(route('product.update', product.id), data, {
+            forceFormData: true,
+            onError: setErrors
+        });
+    };
     return (
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-blue-800">Edit Produk</h2>}>
             <Head title="Edit Produk" />
             <div className="py-8 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
                 <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8 border border-blue-100">
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block font-semibold mb-1">Outlet</label>
+                            <select 
+                                name="outlet_id"
+                                className="w-full border border-blue-200 rounded-lg px-3 py-2"
+                                value={form.outlet_id}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">Pilih Outlet</option>
+                                {outlets.map(outlet => (
+                                    <option key={outlet.id} value={outlet.id}>{outlet.name}</option>
+                                ))}
+                            </select>
+                            {errors.outlet_id && <div className="text-red-600 text-xs mt-1">{errors.outlet_id}</div>}
+                        </div>
                         <div className="md:col-span-2">
                             <label className="block font-semibold mb-1">Nama Produk</label>
                             <input type="text" name="name" className="w-full border border-blue-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" value={form.name} onChange={handleChange} required />
@@ -79,11 +106,18 @@ export default function ProductEdit({ product, categories }) {
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">Barcode</label>
-                            <div className="flex gap-2">
-                                <input type="text" name="barcode" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.barcode} onChange={handleChange} />
-                                <button type="button" onClick={handleScanBarcode} className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600">Scan</button>
+                            <div className="space-y-2">
+                                <input 
+                                    type="text" 
+                                    name="barcode" 
+                                    className="w-full border border-blue-200 rounded-lg px-3 py-2" 
+                                    value={form.barcode} 
+                                    onChange={handleChange} 
+                                />
+                                <BarcodeScanner 
+                                    onScan={(code) => setForm(f => ({ ...f, barcode: code }))}
+                                />
                             </div>
-                            <div id="barcode-scanner" className="mt-2"></div>
                             {errors.barcode && <div className="text-red-600 text-xs mt-1">{errors.barcode}</div>}
                         </div>
                         <div>
@@ -119,7 +153,12 @@ export default function ProductEdit({ product, categories }) {
                 </div>
             </div>
             {/* Barcode scanner library loader */}
-            <script src="https://unpkg.com/html5-qrcode" defer></script>
+            <script
+                src="https://unpkg.com/html5-qrcode"
+                onLoad={() => {
+                    window.barcodeLoaded = true;
+                }}
+            ></script>
         </AuthenticatedLayout>
     );
 }
