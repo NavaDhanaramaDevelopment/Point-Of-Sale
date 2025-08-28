@@ -22,7 +22,7 @@ class PurchaseOrderController extends Controller
         $supplier = $request->input('supplier');
 
         $purchaseOrders = PurchaseOrder::query()
-            ->with(['supplier', 'user'])
+            ->with(['supplier', 'user', 'outlet'])
             ->when($status, function ($query) use ($status) {
                 $query->where('status', $status);
             })
@@ -63,10 +63,14 @@ class PurchaseOrderController extends Controller
      */
     public function create(Request $request)
     {
-        $user = auth()->user();
-        $outlets = Outlet::active()->where('super_admin_id', $user->id)->get(['id', 'name']);
+        $superAdminId = auth()->user()->role === 'manager' 
+            ? auth()->id() 
+            : auth()->user()->super_admin_id;
+        $outlets = Outlet::where('super_admin_id', $superAdminId)
+                    ->where('is_active', true)
+                    ->get();
         $suppliers = Supplier::active()->get(['id', 'name', 'company']);
-        $products = Product::active()->get(['id', 'name', 'code', 'stock_quantity', 'purchase_price']);
+        $products = Product::active()->get(['id', 'name', 'stock_quantity', 'purchase_price']);
 
         // Determine which view to render based on current route
         $routeName = $request->route()->getName();
@@ -105,10 +109,12 @@ class PurchaseOrderController extends Controller
             'items.*.unit_cost' => 'required|numeric|min:0',
             'items.*.notes' => 'nullable|string'
         ]);
+        $validated['outlet_id'] = $request->outlet_id;
 
         DB::transaction(function() use ($validated) {
             $purchaseOrder = PurchaseOrder::create([
                 'po_number' => PurchaseOrder::generatePoNumber(),
+                'outlet_id' => $validated['outlet_id'],
                 'supplier_id' => $validated['supplier_id'],
                 'user_id' => auth()->id(),
                 'order_date' => $validated['order_date'],
@@ -231,9 +237,11 @@ class PurchaseOrderController extends Controller
             'items.*.unit_cost' => 'required|numeric|min:0',
             'items.*.notes' => 'nullable|string'
         ]);
+        $validated['outlet_id'] = $request->outlet_id;
 
         DB::transaction(function() use ($validated, $purchaseOrder) {
             $purchaseOrder->update([
+                'outlet_id' => $validated['outlet_id'],
                 'supplier_id' => $validated['supplier_id'],
                 'order_date' => $validated['order_date'],
                 'expected_date' => $validated['expected_date'] ?? null,
@@ -301,6 +309,22 @@ class PurchaseOrderController extends Controller
     }
 
     /**
+     * Pending purchase order
+     */
+    public function pending(PurchaseOrder $purchaseOrder)
+    {
+        if ($purchaseOrder->status !== 'draft') {
+            return redirect()->back()
+                ->with('error', 'Can only pending pending purchase orders.');
+        }
+
+        $purchaseOrder->update(['status' => 'pending']);
+
+        return redirect()->back()
+            ->with('success', 'Purchase Order pending successfully.');
+    }
+
+    /**
      * Approve purchase order
      */
     public function approve(PurchaseOrder $purchaseOrder)
@@ -335,57 +359,76 @@ class PurchaseOrderController extends Controller
     /**
      * Receive purchase order items
      */
+    /**
+     * Display the purchase order for printing
+     */
+    public function print(PurchaseOrder $purchaseOrder)
+    {
+        $purchaseOrder->load(['supplier', 'outlet', 'user', 'items.product']);
+        return Inertia::render('PurchaseOrder/Print', [
+            'purchaseOrder' => $purchaseOrder
+        ]);
+    }
+
     public function receive(Request $request, PurchaseOrder $purchaseOrder)
     {
-        // Check permission
-        if (!auth()->user()->hasPermission('receive_purchase_orders')) {
-            abort(403, 'Unauthorized action.');
-        }
+        // // Check permission
+        // if (!auth()->user()->hasPermission('receive_purchase_orders')) {
+        //     abort(403, 'Unauthorized action.');
+        // }
 
-        if ($purchaseOrder->status !== 'approved') {
+        if ($purchaseOrder->status !== 'ordered') {
             return redirect()->back()
                 ->with('error', 'Can only receive approved purchase orders.');
         }
 
-        $validated = $request->validate([
-            'items' => 'required|array',
-            'items.*.id' => 'required|exists:purchase_order_items,id',
-            'items.*.quantity_received' => 'required|integer|min:0'
-        ]);
 
-        DB::transaction(function() use ($validated, $purchaseOrder) {
-            foreach ($validated['items'] as $itemData) {
-                $item = PurchaseOrderItem::find($itemData['id']);
-                $newQuantityReceived = $item->quantity_received + $itemData['quantity_received'];
-
-                // Ensure we don't receive more than ordered
-                $quantityToReceive = min($itemData['quantity_received'], $item->quantity_ordered - $item->quantity_received);
-
-                if ($quantityToReceive > 0) {
-                    $item->update([
-                        'quantity_received' => $item->quantity_received + $quantityToReceive
-                    ]);
-
-                    // Update product stock
-                    $product = $item->product;
-                    $product->increment('stock', $quantityToReceive);
-                }
+        DB::transaction(function() use ( $purchaseOrder) {
+            foreach ($purchaseOrder->purchaseOrderItem as $itemData) {
+                // Update product stock
+                $product = $itemData->product;
+                $product->increment('stock_quantity', $itemData->quantity_received);
             }
 
-            // Check if all items are fully received
-            $allReceived = $purchaseOrder->items->every(function($item) {
-                return $item->isFullyReceived();
-            });
-
-            if ($allReceived) {
-                $purchaseOrder->update([
-                    'status' => 'received',
-                    'received_date' => now()
-                ]);
-            }
+            $purchaseOrder->update([
+                'status' => 'received',
+                'received_date' => now()
+            ]);
         });
 
         return redirect()->back()
             ->with('success', 'Items received successfully.');
+    }
+
+    /**
+     * Canceled purchase order
+     */
+    public function cencelled(PurchaseOrder $purchaseOrder)
+    {
+        if ($purchaseOrder->status !== 'cancelled') {
+            return redirect()->back()
+                ->with('error', 'Can only cencelled purchase orders.');
+        }
+
+        $purchaseOrder->update(['status' => 'cencelled']);
+
+        return redirect()->back()
+            ->with('success', 'Purchase Order cencelled successfully.');
+    }
+
+    /**
+     * Ordered purchase order
+     */
+    public function ordered(PurchaseOrder $purchaseOrder)
+    {
+        if ($purchaseOrder->status !== 'approved') {
+            return redirect()->back()
+                ->with('error', 'Can only ordered purchase orders.');
+        }
+
+        $purchaseOrder->update(['status' => 'ordered']);
+
+        return redirect()->back()
+            ->with('success', 'Purchase Order ordered successfully.');
     }
 }

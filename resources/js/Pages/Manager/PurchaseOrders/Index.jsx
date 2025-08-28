@@ -6,9 +6,21 @@ export default function Index({ purchaseOrders, outlets }) {
     const [search, setSearch] = useState('');
 
     const handleStatusChange = (purchaseOrderId, status) => {
-        router.patch(route('manager.purchase-orders.update-status', purchaseOrderId), {
-            status: status
-        });
+        if(status == 'pending'){
+            router.patch(route('purchase-orders.pending', purchaseOrderId));
+        }
+        if(status == 'approved'){
+            router.patch(route('purchase-orders.approved', purchaseOrderId));
+        }
+        if(status == 'cancelled'){
+            router.patch(route('purchase-orders.cancelled', purchaseOrderId));
+        }
+        if(status == 'ordered'){
+            router.patch(route('purchase-orders.ordered', purchaseOrderId));
+        }
+        if(status == 'received'){
+            router.patch(route('purchase-orders.receive', purchaseOrderId));
+        }
     };
 
     const handleSearch = (e) => {

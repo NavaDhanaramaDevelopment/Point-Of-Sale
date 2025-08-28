@@ -3,9 +3,21 @@ import { Head, Link, router } from '@inertiajs/react';
 
 export default function Show({ purchaseOrder }) {
     const handleStatusChange = (status) => {
-        router.patch(route('manager.purchase-orders.update-status', purchaseOrder.id), {
-            status: status
-        });
+        if(status == 'pending'){
+            router.patch(route('purchase-orders.pending', purchaseOrder.id));
+        }
+        if(status == 'approved'){
+            router.patch(route('purchase-orders.approved', purchaseOrder.id));
+        }
+        if(status == 'cancelled'){
+            router.patch(route('purchase-orders.cancelled', purchaseOrder.id));
+        }
+        if(status == 'ordered'){
+            router.patch(route('purchase-orders.ordered', purchaseOrder.id));
+        }
+        if(status == 'received'){
+            router.patch(route('purchase-orders.receive', purchaseOrder.id));
+        }
     };
 
     const formatCurrency = (amount) => {
@@ -29,7 +41,7 @@ export default function Show({ purchaseOrder }) {
     };
 
     const calculateTotal = () => {
-        return purchaseOrder.items?.reduce((total, item) => total + item.total_price, 0) || 0;
+        return purchaseOrder.items?.reduce((total, item) => total + item.total_cost, 0) || 0;
     };
 
     return (
@@ -192,10 +204,10 @@ export default function Show({ purchaseOrder }) {
                                                         {item.quantity}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {formatCurrency(item.unit_price)}
+                                                        {formatCurrency(item.unit_cost)}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {formatCurrency(item.total_price)}
+                                                        {formatCurrency(item.total_cost)}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -283,12 +295,12 @@ export default function Show({ purchaseOrder }) {
                                     </button>
                                 )}
 
-                                {/* Print/Export actions can be added here */}
+                                {/* Print/Export actions */}
                                 <button
-                                    onClick={() => window.print()}
+                                    onClick={() => window.open(route('purchase-orders.print', purchaseOrder.id), '_blank')}
                                     className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                                 >
-                                    Print
+                                    Print Purchase Order
                                 </button>
                             </div>
                         </div>

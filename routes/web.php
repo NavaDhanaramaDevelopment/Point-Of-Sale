@@ -124,8 +124,11 @@ Route::middleware(['auth'])->prefix('purchase-orders')->name('purchase-orders.')
     Route::put('/{purchaseOrder}', [\App\Http\Controllers\PurchaseOrderController::class, 'update'])->name('update');
     Route::delete('/{purchaseOrder}', [\App\Http\Controllers\PurchaseOrderController::class, 'destroy'])->name('destroy');
     Route::post('/{purchaseOrder}/submit', [\App\Http\Controllers\PurchaseOrderController::class, 'submit'])->name('submit');
-    Route::post('/{purchaseOrder}/approve', [\App\Http\Controllers\PurchaseOrderController::class, 'approve'])->name('approve');
-    Route::post('/{purchaseOrder}/receive', [\App\Http\Controllers\PurchaseOrderController::class, 'receive'])->name('receive');
+    Route::patch('/{purchaseOrder}/pending', [\App\Http\Controllers\PurchaseOrderController::class, 'pending'])->name('pending');
+    Route::patch('/{purchaseOrder}/cancelled', [\App\Http\Controllers\PurchaseOrderController::class, 'cancelled'])->name('cancelled');
+    Route::patch('/{purchaseOrder}/approve', [\App\Http\Controllers\PurchaseOrderController::class, 'approve'])->name('approved');
+    Route::patch('/{purchaseOrder}/receive', [\App\Http\Controllers\PurchaseOrderController::class, 'receive'])->name('receive');
+    Route::patch('/{purchaseOrder}/ordered', [\App\Http\Controllers\PurchaseOrderController::class, 'ordered'])->name('ordered');
 });
 
 Route::middleware(['auth'])->prefix('subscription')->name('subscription.')->group(function () {
@@ -266,6 +269,8 @@ Route::middleware(['auth', 'role:kasir,manager,admin,owner'])->prefix('kasir')->
 });
 
 Route::middleware('auth')->group(function () {
+    // Purchase Order Routes
+    Route::get('/purchase-orders/{purchaseOrder}/print', [PurchaseOrderController::class, 'print'])->name('purchase-orders.print');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

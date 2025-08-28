@@ -110,4 +110,12 @@ class Outlet extends Model
     {
         return $this->belongsTo(User::class, 'super_admin_id');
     }
+
+    /**
+     * Get purchase orders for this outlet
+     */
+    public function purchaseOrders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
 }

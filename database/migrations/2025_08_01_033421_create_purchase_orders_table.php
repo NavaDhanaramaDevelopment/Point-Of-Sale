@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('order_date');
             $table->date('expected_date')->nullable();
             $table->date('received_date')->nullable();
-            $table->enum('status', ['draft', 'pending', 'approved', 'received', 'cancelled'])->default('draft');
+            $table->enum('status', ['draft', 'pending', 'approved', 'received', 'cancelled', 'ordered'])->default('draft');
             $table->decimal('subtotal', 15, 2)->default(0);
             $table->decimal('tax_amount', 15, 2)->default(0);
             $table->decimal('discount_amount', 15, 2)->default(0);

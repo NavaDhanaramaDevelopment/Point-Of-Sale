@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
@@ -10,8 +10,6 @@ import TextInput from '@/Components/TextInput';
 export default function Create({ outlets = [], suppliers = [], products = [] }) {
     const [selectedOutlet, setSelectedOutlet] = useState(null);
     const [selectedSupplier, setSelectedSupplier] = useState(null);
-    const [items, setItems] = useState([]);
-
     const { data, setData, post, processing, errors } = useForm({
         outlet_id: '',
         supplier_id: '',
@@ -20,6 +18,18 @@ export default function Create({ outlets = [], suppliers = [], products = [] }) 
         notes: '',
         items: []
     });
+
+    const [items, setItems] = useState([]);
+
+    // Update form data whenever items change
+    useEffect(() => {
+        setData('items', items.map(item => ({
+            product_id: item.product_id,
+            quantity_ordered: item.quantity,
+            unit_cost: item.unit_price,
+            notes: ''
+        })));
+    }, [items]);
 
     const outletOptions = outlets.map(outlet => ({
         value: outlet.id,
@@ -86,18 +96,10 @@ export default function Create({ outlets = [], suppliers = [], products = [] }) 
         const formData = {
             ...data,
             outlet_id: selectedOutlet?.value,
-            supplier_id: selectedSupplier?.value,
-            items: items.map(item => ({
-                product_id: item.product_id,
-                quantity: item.quantity,
-                unit_price: item.unit_price,
-                total_price: item.total_price
-            }))
+            supplier_id: selectedSupplier?.value
         };
 
-        post(route('manager.purchase-orders.store'), {
-            data: formData
-        });
+        post(route('manager.purchase-orders.store'), formData);
     };
 
     const formatCurrency = (amount) => {

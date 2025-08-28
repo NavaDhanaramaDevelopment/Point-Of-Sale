@@ -11,6 +11,7 @@ class PurchaseOrder extends Model
 
     protected $fillable = [
         'po_number',
+        'outlet_id',
         'supplier_id',
         'user_id',
         'order_date',
@@ -33,6 +34,22 @@ class PurchaseOrder extends Model
         'discount_amount' => 'decimal:2',
         'total_amount' => 'decimal:2'
     ];
+
+     /**
+     * Get the purchaseOrderItem that owns the purchase order.
+     */
+    public function purchaseOrderItem()
+    {
+        return $this->hasMany(PurchaseOrderItem::class);
+    }    
+
+    /**
+     * Get the outlet that owns the purchase order.
+     */
+    public function outlet()
+    {
+        return $this->belongsTo(Outlet::class);
+    }
 
     /**
      * Get the supplier that owns the purchase order.
