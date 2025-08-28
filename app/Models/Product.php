@@ -12,7 +12,7 @@ class Product extends Model
 
     protected $fillable = [
         'name', 'description', 'category_id', 'subcategory_id', 'sku', 'barcode', 'unit',
-        'purchase_price', 'selling_price', 'stock', 'stock_minimum', 'image', 'is_active',
+        'purchase_price', 'selling_price', 'stock_quantity', 'minimum_stock', 'image', 'is_active',
         'outlet_id', 'super_admin_id'
     ];
 
@@ -49,6 +49,6 @@ class Product extends Model
 
     public function isStockLow()
     {
-        return $this->stock <= $this->stock_minimum;
+        return $this->stock_quantity <= $this->minimum_stock;
     }
 }

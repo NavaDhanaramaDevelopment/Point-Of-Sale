@@ -14,9 +14,9 @@ export default function ProductEdit({ product, categories, outlets }) {
         barcode: product.barcode || '',
         unit: product.unit || 'pcs',
         purchase_price: product.purchase_price || '',
-        sell_price: product.sell_price || '',
-        stock: product.stock || '',
-        stock_minimum: product.stock_minimum || '',
+        selling_price: product.selling_price || '',
+        stock_quantity: product.stock_quantity || '',
+        minimum_stock: product.minimum_stock || '',
         image: null
     });
     const [subcategories, setSubcategories] = useState([]);
@@ -60,7 +60,7 @@ export default function ProductEdit({ product, categories, outlets }) {
             <div className="py-8 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
                 <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8 border border-blue-100">
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
+                        <div className='md:col-span-2'>
                             <label className="block font-semibold mb-1">Outlet</label>
                             <select 
                                 name="outlet_id"
@@ -130,15 +130,15 @@ export default function ProductEdit({ product, categories, outlets }) {
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">Harga Jual</label>
-                            <input type="number" name="sell_price" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.sell_price} onChange={handleChange} required min="0" />
+                            <input type="number" name="selling_price" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.selling_price} onChange={handleChange} required min="0" />
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">Stok</label>
-                            <input type="number" name="stock" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.stock} onChange={handleChange} required min="0" />
+                            <input type="number" name="stock_quantity" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.stock_quantity} onChange={handleChange} required min="0" />
                         </div>
                         <div>
                             <label className="block font-semibold mb-1">Stok Minimum</label>
-                            <input type="number" name="stock_minimum" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.stock_minimum} onChange={handleChange} required min="0" />
+                            <input type="number" name="minimum_stock" className="w-full border border-blue-200 rounded-lg px-3 py-2" value={form.minimum_stock} onChange={handleChange} required min="0" />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block font-semibold mb-1">Gambar Produk</label>
