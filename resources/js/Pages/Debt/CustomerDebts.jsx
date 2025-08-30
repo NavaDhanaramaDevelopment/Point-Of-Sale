@@ -3,16 +3,21 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { PlusIcon, CurrencyDollarIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import Select from 'react-select';
+import axios from 'axios';
 
-export default function CustomerDebts({ auth, debts, filters, customers, sales }) {
+export default function CustomerDebts({ auth, debts, filters, customers = [], sales = [], outlets = [] }) {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [selectedDebt, setSelectedDebt] = useState(null);
+    const [availableCustomers, setAvailableCustomers] = useState([]);
+    const [availableSales, setAvailableSales] = useState([]);
+    const [loadingCustomers, setLoadingCustomers] = useState(false);
+    const [loadingSales, setLoadingSales] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         customer_id: '',
         outlet_id: auth.user.outlet_id || '',
-        invoice_number: '',
+        invoice: '',
         total_amount: '',
         due_date: '',
         notes: '',
@@ -23,12 +28,61 @@ export default function CustomerDebts({ auth, debts, filters, customers, sales }
         reference_number: '',
         payment_notes: '',
     });
-    // Prepare invoice options for select dropdown
-    const saleOptions = sales.map((sale) => ({
-        value: sale.invoice_number,
-        label: `${sale.invoice_number} - ${sale.customer?.name}`,
-        customer_id: sale.customer_id,
+    // Prepare outlet options for select dropdown
+    const outletOptions = outlets.map(outlet => ({
+        value: outlet.id,
+        label: outlet.name
     }));
+
+    // Prepare customer options for selected outlet
+    const customerOptions = availableCustomers.map(customer => ({
+        value: customer.id,
+        label: customer.name
+    }));
+
+    // Prepare invoice options for select dropdown
+    const saleOptions = availableSales.map((sale) => ({
+        value: sale.invoice,
+        label: `${sale.invoice} - ${sale.customer?.name} - Rp ${parseFloat(sale.total).toLocaleString()}`,
+        customer_id: sale.customer_id,
+        total_amount: sale.total,
+    }));
+
+    // Handle outlet selection change
+    const handleOutletChange = async (selectedOption) => {
+        if (!selectedOption) {
+            setData({ ...data, outlet_id: '', customer_id: '', invoice: '' });
+            setAvailableCustomers([]);
+            setAvailableSales([]);
+            return;
+        }
+
+        setData({ ...data, outlet_id: selectedOption.value, customer_id: '', invoice: '' });
+
+        // Load customers for selected outlet
+        setLoadingCustomers(true);
+        try {
+            const response = await axios.get(route('customer-debts.customers-by-outlet'), {
+                params: { outlet_id: selectedOption.value }
+            });
+            setAvailableCustomers(response.data);
+        } catch (error) {
+            console.error('Error loading customers:', error);
+        }
+        setLoadingCustomers(false);
+
+        // Load sales for selected outlet
+        setLoadingSales(true);
+        try {
+            const response = await axios.get(route('customer-debts.sales-by-outlet'), {
+                params: { outlet_id: selectedOption.value }
+            });
+            setAvailableSales(response.data);
+        } catch (error) {
+            console.error('Error loading sales:', error);
+        }
+        setLoadingSales(false);
+    };
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -51,8 +105,23 @@ export default function CustomerDebts({ auth, debts, filters, customers, sales }
             onSuccess: () => {
                 reset();
                 setShowCreateModal(false);
+                setAvailableCustomers([]);
+                setAvailableSales([]);
             }
         });
+    };
+
+    const openCreateModal = () => {
+        // Reset form and available data
+        reset();
+        setAvailableCustomers([]);
+        setAvailableSales([]);
+        setShowCreateModal(true);
+
+        // If user has a specific outlet, auto-load data for that outlet
+        if (auth.user.outlet_id) {
+            handleOutletChange({ value: auth.user.outlet_id });
+        }
     };
 
     const handlePayment = (debt) => {
@@ -102,7 +171,7 @@ export default function CustomerDebts({ auth, debts, filters, customers, sales }
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-2xl font-bold text-gray-900">Customer Debts (Piutang)</h2>
                                 <button
-                                    onClick={() => setShowCreateModal(true)}
+                                    onClick={openCreateModal}
                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
                                 >
                                     <PlusIcon className="h-5 w-5 mr-2" />
@@ -168,7 +237,7 @@ export default function CustomerDebts({ auth, debts, filters, customers, sales }
                                                             {debt.customer?.name}
                                                         </div>
                                                         <div className="text-sm text-gray-500">
-                                                            {debt.invoice_number}
+                                                            {debt.invoice}
                                                         </div>
                                                         {debt.outlet && (
                                                             <div className="text-xs text-gray-400">
@@ -242,34 +311,61 @@ export default function CustomerDebts({ auth, debts, filters, customers, sales }
                             <h3 className="text-lg font-medium text-gray-900 mb-4">Add Customer Debt</h3>
                             <form onSubmit={handleCreateDebt} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Customer</label>
-                                    <select
-                                        value={data.customer_id}
-                                        onChange={(e) => setData('customer_id', e.target.value)}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                        required
-                                    >
-                                        <option value="">Select Customer</option>
-                                        {customers.map(c => (
-                                            <option key={c.id} value={c.id}>{c.name}</option>
-                                        ))}
-                                    </select>
+                                    <label className="block text-sm font-medium text-gray-700">Outlet *</label>
+                                    <Select
+                                        options={outletOptions}
+                                        value={outletOptions.find(opt => opt.value == data.outlet_id) || null}
+                                        onChange={handleOutletChange}
+                                        placeholder="Select Outlet First"
+                                        className="mt-1"
+                                        isDisabled={outletOptions.length <= 1 && auth.user.outlet_id}
+                                    />
+                                    {errors.outlet_id && <p className="mt-1 text-sm text-red-600">{errors.outlet_id}</p>}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Customer *</label>
+                                    <Select
+                                        options={customerOptions}
+                                        value={customerOptions.find(opt => opt.value == data.customer_id) || null}
+                                        onChange={(selectedOption) => setData('customer_id', selectedOption ? selectedOption.value : '')}
+                                        placeholder={loadingCustomers ? "Loading customers..." : (data.outlet_id ? "Select Customer" : "Select outlet first")}
+                                        className="mt-1"
+                                        isDisabled={!data.outlet_id || loadingCustomers}
+                                        isLoading={loadingCustomers}
+                                    />
                                     {errors.customer_id && <p className="mt-1 text-sm text-red-600">{errors.customer_id}</p>}
                                 </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Invoice Number</label>
                                     <Select
                                         options={saleOptions}
-                                        value={saleOptions.find(opt => opt.value === data.invoice_number) || null}
-                                        onChange={(opt) => {
-                                            setData('invoice_number', opt.value);
-                                            setData('customer_id', opt.customer_id);
-                                            setData('sale_id', opt.value); // bind sale_id as well
+                                        value={saleOptions.find(opt => opt.value === data.invoice) || null}
+                                        onChange={(selectedOption) => {
+                                            if (selectedOption) {
+                                                setData({
+                                                    ...data,
+                                                    invoice: selectedOption.value,
+                                                    customer_id: selectedOption.customer_id,
+                                                    total_amount: selectedOption.total_amount
+                                                });
+                                            } else {
+                                                setData({
+                                                    ...data,
+                                                    invoice: '',
+                                                    total_amount: ''
+                                                });
+                                            }
                                         }}
-                                        placeholder="Select Invoice"
+                                        placeholder={loadingSales ? "Loading invoices..." : (data.outlet_id ? "Select Invoice (Optional)" : "Select outlet first")}
                                         className="mt-1"
+                                        isDisabled={!data.outlet_id || loadingSales}
+                                        isLoading={loadingSales}
+                                        isClearable
                                     />
-                                    {errors.invoice_number && <p className="mt-1 text-sm text-red-600">{errors.invoice_number}</p>}
+                                    {errors.invoice && <p className="mt-1 text-sm text-red-600">{errors.invoice}</p>}
+                                    <p className="mt-1 text-xs text-gray-500">Optional: Auto-fill amount from selected invoice</p>
                                 </div>
 
                                 <div>
@@ -310,7 +406,11 @@ export default function CustomerDebts({ auth, debts, filters, customers, sales }
                                 <div className="flex justify-end space-x-3 pt-4">
                                     <button
                                         type="button"
-                                        onClick={() => setShowCreateModal(false)}
+                                        onClick={() => {
+                                            setShowCreateModal(false);
+                                            setAvailableCustomers([]);
+                                            setAvailableSales([]);
+                                        }}
                                         className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
                                     >
                                         Cancel
@@ -338,7 +438,7 @@ export default function CustomerDebts({ auth, debts, filters, customers, sales }
                             <div className="mb-4 p-3 bg-gray-50 rounded">
                                 <div className="text-sm">
                                     <div><strong>Customer:</strong> {selectedDebt.customer?.name}</div>
-                                    <div><strong>Invoice:</strong> {selectedDebt.invoice_number}</div>
+                                    <div><strong>Invoice:</strong> {selectedDebt.invoice}</div>
                                     <div><strong>Remaining:</strong> Rp {parseFloat(selectedDebt.remaining_amount).toLocaleString()}</div>
                                 </div>
                             </div>

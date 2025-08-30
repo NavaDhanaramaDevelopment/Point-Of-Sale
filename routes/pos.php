@@ -8,4 +8,6 @@ Route::middleware(['auth', 'verified'])->prefix('pos')->group(function () {
     Route::post('/store', [PosController::class, 'store'])->name('pos.store');
     Route::post('/hold', [PosController::class, 'holdCart'])->name('pos.hold');
     Route::post('/refund', [PosController::class, 'refund'])->name('pos.refund');
+    Route::get('/search-customers', [PosController::class, 'searchCustomers'])->name('pos.searchCustomers');
+    Route::post('/find-or-create-customer', [PosController::class, 'findOrCreateCustomer'])->name('pos.findOrCreateCustomer');
 });

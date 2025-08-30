@@ -14,8 +14,8 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $superAdminId = auth()->user()->role === 'manager' 
-            ? auth()->id() 
+        $superAdminId = auth()->user()->role === 'manager'
+            ? auth()->id()
             : auth()->user()->super_admin_id;
 
         $products = Product::with(['category', 'subcategory', 'outlet'])
@@ -37,10 +37,10 @@ class ProductController extends Controller
 
     public function create()
     {
-        $superAdminId = auth()->user()->role === 'manager' 
-            ? auth()->id() 
+        $superAdminId = auth()->user()->role === 'manager'
+            ? auth()->id()
             : auth()->user()->super_admin_id;
-            
+
         $categories = Category::with('subcategories')->get();
         $outlets = Outlet::where('super_admin_id', $superAdminId)
             ->where('is_active', true)
@@ -82,8 +82,8 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $superAdminId = auth()->user()->role === 'manager' 
-            ? auth()->id() 
+        $superAdminId = auth()->user()->role === 'manager'
+            ? auth()->id()
             : auth()->user()->super_admin_id;
             
         $categories = Category::with('subcategories')->get();

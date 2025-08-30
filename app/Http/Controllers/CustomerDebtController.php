@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\CustomerDebt;
 use App\Models\Customer;
 use App\Models\DebtPayment;
+use App\Models\Sale;
+use App\Models\Outlet;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -34,14 +36,22 @@ class CustomerDebtController extends Controller
             ->latest()
             ->get();
 
-        // Load sales for invoice selection
-        $sales = \App\Models\Sale::with('customer')
-            ->when($outletId, function ($query) use ($outletId) {
-                $query->where('outlet_id', $outletId);
-            })->get();
+        // Load all outlets for selection
+        $superAdminId = auth()->user()->role === 'manager'
+            ? auth()->id()
+            : auth()->user()->super_admin_id;
 
-        // Load customers for current outlet
-        $customers = \App\Models\Customer::where('outlet_id', $outletId)->get();
+        $outlets = Outlet::where('super_admin_id', $superAdminId)
+            ->where('is_active', true)
+            ->get();
+
+        // Load customers and sales only if outlet is selected
+        $customers = $outletId ? Customer::where('outlet_id', $outletId)->select('id', 'name')->get() : collect();
+        $sales = $outletId ? Sale::with('customer:id,name')
+            ->where('outlet_id', $outletId)
+            ->select('id', 'invoice', 'customer_id', 'total')
+            ->get() : collect();
+
         return Inertia::render('Debt/CustomerDebts', [
             'debts' => $debts,
             'filters' => [
@@ -49,9 +59,37 @@ class CustomerDebtController extends Controller
                 'status' => $status,
                 'outlet_id' => $outletId
             ],
+            'outlets' => $outlets,
             'customers' => $customers,
             'sales' => $sales,
         ]);
+    }
+
+    /**
+     * Get customers by outlet
+     */
+    public function getCustomersByOutlet(Request $request)
+    {
+        $outletId = $request->input('outlet_id');
+        $customers = Customer::where('outlet_id', $outletId)
+            ->select('id', 'name')
+            ->get();
+
+        return response()->json($customers);
+    }
+
+    /**
+     * Get sales by outlet
+     */
+    public function getSalesByOutlet(Request $request)
+    {
+        $outletId = $request->input('outlet_id');
+        $sales = Sale::with('customer:id,name')
+            ->where('outlet_id', $outletId)
+            ->select('id', 'invoice', 'customer_id', 'total')
+            ->get();
+
+        return response()->json($sales);
     }
 
     /**
@@ -59,16 +97,18 @@ class CustomerDebtController extends Controller
      */
     public function store(Request $request)
     {
+        $sale = Sale::where('invoice', $request->invoice)->first();
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'outlet_id' => 'required|exists:outlets,id',
-            'sale_id' => 'required|exists:sales,id',
+            'invoice' => 'required|exists:sales,invoice',
             'total_amount' => 'required|numeric|min:0',
             'due_date' => 'required|date|after:today',
             'notes' => 'nullable|string',
         ]);
 
         // Generate random invoice number for debt
+        $validated['sale_id'] = $sale->id;
         $validated['invoice_number'] = strtoupper(\Illuminate\Support\Str::random(8));
         $validated['remaining_amount'] = $validated['total_amount'];
 

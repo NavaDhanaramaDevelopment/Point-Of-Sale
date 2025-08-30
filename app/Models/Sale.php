@@ -10,10 +10,12 @@ class Sale extends Model
 
     protected $fillable = [
         'user_id',
+        'outlet_id',
         'shift_id',
         'customer_id',
         'customer_name',
         'customer_contact',
+        'invoice',
         'total',
         'discount',
         'tax',
@@ -22,6 +24,27 @@ class Sale extends Model
         'payment_details',
         'status',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($sale) {
+            if (empty($sale->invoice)) {
+                $sale->invoice = $sale->generateInvoiceNumber();
+            }
+        });
+    }
+
+    public function generateInvoiceNumber()
+    {
+        $prefix = 'INV';
+        $date = date('Ymd');
+        $lastSale = static::whereDate('created_at', today())->latest('id')->first();
+        $sequence = $lastSale ? (intval(substr($lastSale->invoice, -4)) + 1) : 1;
+
+        return $prefix . $date . sprintf('%04d', $sequence);
+    }
 
     public function items()
     {

@@ -12,9 +12,9 @@ class SaleItem extends Model
         'sale_id',
         'product_id',
         'product_name',
-        'barcode',
         'price',
-        'quantity',
+        'qty',
+        'unit',
         'subtotal',
     ];
 
