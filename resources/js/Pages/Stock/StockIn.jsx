@@ -52,7 +52,7 @@ export default function StockIn({ auth, products }) {
                                         <option value="">Pilih Produk</option>
                                         {products.map((product) => (
                                             <option key={product.id} value={product.id}>
-                                                {product.name} (Stock: {product.stock})
+                                                {product.name} (Stock: {product.stock_quantity})
                                             </option>
                                         ))}
                                     </select>
@@ -62,7 +62,7 @@ export default function StockIn({ auth, products }) {
                                 {selectedProduct && (
                                     <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                                         <h4 className="font-medium text-gray-900">Informasi Produk</h4>
-                                        <p className="text-sm text-gray-600">Stock Saat Ini: {selectedProduct.stock}</p>
+                                        <p className="text-sm text-gray-600">Stock Saat Ini: {selectedProduct.stock_quantity}</p>
                                         <p className="text-sm text-gray-600">Harga Beli: Rp {Number(selectedProduct.purchase_price).toLocaleString('id-ID')}</p>
                                     </div>
                                 )}
@@ -101,7 +101,11 @@ export default function StockIn({ auth, products }) {
                                 {data.quantity && selectedProduct && (
                                     <div className="mb-4 p-4 bg-blue-50 rounded-lg">
                                         <h4 className="font-medium text-blue-900">Summary</h4>
-                                        <p className="text-sm text-blue-700">Stock Setelah: {selectedProduct.stock + parseInt(data.quantity || 0)}</p>
+                                        <p className="text-sm text-blue-700">
+                                            Stock Setelah: {
+                                                (Number(selectedProduct.stock_quantity || selectedProduct.stock || 0) + Number(data.quantity || 0)).toLocaleString('id-ID')
+                                            }
+                                        </p>
                                     </div>
                                 )}
 

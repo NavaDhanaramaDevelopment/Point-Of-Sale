@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\CustomerPoint;
 use App\Models\Sale;
+use App\Models\Outlet;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,7 +34,13 @@ class CustomerController extends Controller
 
     public function create(): Response
     {
-        $outlets = \App\Models\Outlet::where('is_active', true)->get(['id', 'name', 'code']);
+        $superAdminId = auth()->user()->role === 'manager'
+            ? auth()->id()
+            : auth()->user()->super_admin_id;
+
+        $outlets = Outlet::where('super_admin_id', $superAdminId)
+                    ->where('is_active', true)
+                    ->get();
         return Inertia::render('Customer/Create', [
             'outlets' => $outlets
         ]);
@@ -50,6 +57,8 @@ class CustomerController extends Controller
             'gender' => 'nullable|in:male,female',
             'discount_percentage' => 'nullable|numeric|min:0|max:100'
         ]);
+
+        $request['outlet_id'] = $request->input('outlet_id');
 
         Customer::create($request->all());
 
@@ -87,7 +96,13 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer): Response
     {
-        $outlets = \App\Models\Outlet::where('is_active', true)->get(['id', 'name', 'code']);
+        $superAdminId = auth()->user()->role === 'manager'
+            ? auth()->id()
+            : auth()->user()->super_admin_id;
+        $outlets = Outlet::where('super_admin_id', $superAdminId)
+                    ->where('is_active', true)
+                    ->get();
+
         return Inertia::render('Customer/Edit', [
             'customer' => $customer,
             'outlets' => $outlets
@@ -106,6 +121,8 @@ class CustomerController extends Controller
             'discount_percentage' => 'nullable|numeric|min:0|max:100',
             'is_active' => 'boolean'
         ]);
+
+        $request['outlet_id'] = $request->input('outlet_id');
 
         $customer->update($request->all());
 

@@ -47,8 +47,30 @@ class Product extends Model
         return $this->hasMany(StockMovement::class);
     }
 
+    /**
+     * Hitung stock sebenarnya berdasarkan movement
+     * IN + ADJUSTMENT - OUT = Stock Sisa
+     */
+    public function getActualStock()
+    {
+        $movements = $this->stockMovements;
+
+        $stockIn = $movements->whereIn('type', ['in', 'adjustment'])->sum('quantity');
+        $stockOut = $movements->where('type', 'out')->sum('quantity');
+
+        return $stockIn - $stockOut;
+    }
+
+    /**
+     * Attribute accessor untuk mendapatkan stock aktual
+     */
+    public function getActualStockAttribute()
+    {
+        return $this->getActualStock();
+    }
+
     public function isStockLow()
     {
-        return $this->stock_quantity <= $this->minimum_stock;
+        return $this->getActualStock() <= $this->minimum_stock;
     }
 }

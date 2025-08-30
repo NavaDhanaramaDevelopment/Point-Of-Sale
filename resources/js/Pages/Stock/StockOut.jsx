@@ -60,7 +60,7 @@ export default function StockOut({ auth, products }) {
                                         <option value="">Pilih Produk</option>
                                         {products.map((product) => (
                                             <option key={product.id} value={product.id}>
-                                                {product.name} (Stock: {product.stock})
+                                                {product.name} (Stock: {product.stock_quantity})
                                             </option>
                                         ))}
                                     </select>
@@ -70,8 +70,8 @@ export default function StockOut({ auth, products }) {
                                 {selectedProduct && (
                                     <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                                         <h4 className="font-medium text-gray-900">Informasi Produk</h4>
-                                        <p className="text-sm text-gray-600">Stock Tersedia: {selectedProduct.stock}</p>
-                                        <p className="text-sm text-gray-600">Harga Jual: Rp {Number(selectedProduct.sell_price).toLocaleString('id-ID')}</p>
+                                        <p className="text-sm text-gray-600">Stock Tersedia: {selectedProduct.stock_quantity}</p>
+                                        <p className="text-sm text-gray-600">Harga Jual: Rp {Number(selectedProduct.selling_price).toLocaleString('id-ID')}</p>
                                     </div>
                                 )}
 
@@ -86,7 +86,7 @@ export default function StockOut({ auth, products }) {
                                         onChange={(e) => setData('quantity', e.target.value)}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                         min="1"
-                                        max={selectedProduct?.stock || 999999}
+                                        max={selectedProduct?.stock_quantity || 999999}
                                         required
                                     />
                                     {errors.quantity && <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>}
@@ -132,8 +132,8 @@ export default function StockOut({ auth, products }) {
                                 {data.quantity && selectedProduct && (
                                     <div className="mb-4 p-4 bg-red-50 rounded-lg">
                                         <h4 className="font-medium text-red-900">Peringatan</h4>
-                                        <p className="text-sm text-red-700">Stock akan berkurang dari {selectedProduct.stock} menjadi {selectedProduct.stock - parseInt(data.quantity || 0)}</p>
-                                        {(selectedProduct.stock - parseInt(data.quantity || 0)) < 0 && (
+                                        <p className="text-sm text-red-700">Stock akan berkurang dari {selectedProduct.stock_quantity} menjadi {selectedProduct.stock_quantity - parseInt(data.quantity || 0)}</p>
+                                        {(selectedProduct.stock_quantity - parseInt(data.quantity || 0)) < 0 && (
                                             <p className="text-sm text-red-800 font-bold">❌ Stock tidak mencukupi!</p>
                                         )}
                                     </div>

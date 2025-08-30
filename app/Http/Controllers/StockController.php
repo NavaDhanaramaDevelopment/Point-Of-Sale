@@ -7,6 +7,7 @@ use App\Models\StockMovement;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use DB;
 
 class StockController extends Controller
 {
@@ -23,7 +24,13 @@ class StockController extends Controller
 
     public function stockIn(): Response
     {
-        $products = Product::select('id', 'name', 'stock_quantity', 'purchase_price')->get();
+        $products = Product::select('id', 'name', 'purchase_price')
+            ->with('stockMovements')
+            ->get()
+            ->map(function ($product) {
+                $product->stock_quantity = $product->getActualStock();
+                return $product;
+            });
 
         return Inertia::render('Stock/StockIn', [
             'products' => $products
@@ -39,7 +46,9 @@ class StockController extends Controller
         ]);
 
         $product = Product::findOrFail($request->product_id);
-        $beforeStock = $product->stock;
+
+        // Ambil stock terkini dari perhitungan movement
+        $beforeStock = $product->getActualStock();
         $afterStock = $beforeStock + $request->quantity;
 
         // Update stock produk
@@ -62,9 +71,18 @@ class StockController extends Controller
 
     public function stockOut(): Response
     {
-        $products = Product::where('stock_quantity', '>', 0)
-            ->select('id', 'name', 'stock_quantity', 'selling_price')
-            ->get();
+        $products = Product::select('id', 'name', 'selling_price')
+            ->with('stockMovements')
+            ->get()
+            ->map(function ($product) {
+                $product->stock_quantity = $product->getActualStock();
+                return $product;
+            })
+            ->filter(function ($product) {
+                // Hanya tampilkan produk yang stock_quantity > 0
+                return $product->stock_quantity > 0;
+            })
+            ->values();
 
         return Inertia::render('Stock/StockOut', [
             'products' => $products
@@ -81,7 +99,9 @@ class StockController extends Controller
         ]);
 
         $product = Product::findOrFail($request->product_id);
-        $beforeStock = $product->stock;
+
+        // Ambil stock terkini dari perhitungan movement
+        $beforeStock = $product->getActualStock();
 
         if ($beforeStock < $request->quantity) {
             return back()->withErrors(['quantity' => 'Stock tidak mencukupi']);
@@ -109,7 +129,13 @@ class StockController extends Controller
 
     public function adjustment(): Response
     {
-        $products = Product::select('id', 'name', 'stock_quantity')->get();
+        $products = Product::select('id', 'name')
+            ->with('stockMovements')
+            ->get()
+            ->map(function ($product) {
+                $product->stock_quantity = $product->getActualStock();
+                return $product;
+            });
 
         return Inertia::render('Stock/Adjustment', [
             'products' => $products
@@ -125,7 +151,9 @@ class StockController extends Controller
         ]);
 
         $product = Product::findOrFail($request->product_id);
-        $beforeStock = $product->stock;
+
+        // Ambil stock terkini dari perhitungan movement
+        $beforeStock = $product->getActualStock();
         $afterStock = $request->new_stock;
         $difference = $afterStock - $beforeStock;
 

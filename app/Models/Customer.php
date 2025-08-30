@@ -12,6 +12,7 @@ class Customer extends Model
     protected $fillable = [
         'name',
         'phone',
+        'outlet_id',
         'email',
         'address',
         'birth_date',
@@ -31,6 +32,11 @@ class Customer extends Model
         'last_visit' => 'datetime',
         'is_active' => 'boolean',
     ];
+
+    public function outlet()
+    {
+        return $this->hasMany(Outlet::class);
+    }
 
     public function sales()
     {
