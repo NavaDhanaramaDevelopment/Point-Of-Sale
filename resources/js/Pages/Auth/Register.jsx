@@ -30,10 +30,18 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Daftar - TOKAKU" />
 
-            <div className="mb-4 text-center">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Daftar Akun Baru</h1>
+            <div className="mb-6 text-center">
+                <div className="flex justify-center mb-6">
+                    <img
+                        src="/logo.png"
+                        alt="TOKAKU"
+                        className="w-20 h-20 object-contain drop-shadow-lg rounded-full"
+                    />
+                </div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent mb-2">TOKAKU</h1>
+                <p className="text-orange-600 font-medium mb-1">Aplikasi Toko Kasir Ku</p>
                 <p className="text-gray-600">Dapatkan free trial 7 hari untuk mencoba semua fitur</p>
             </div>
 
@@ -150,26 +158,54 @@ export default function Register() {
                     />
                 </div>
 
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-semibold text-blue-900 mb-2">Benefit Free Trial 7 Hari:</h3>
-                    <ul className="text-sm text-blue-800 space-y-1">
-                        <li>✓ Akses semua fitur POS</li>
-                        <li>✓ Multi outlet management</li>
-                        <li>✓ Sistem hutang piutang</li>
-                        <li>✓ Laporan lengkap</li>
-                        <li>✓ Customer management</li>
+                <div className="mt-6 tokaku-card p-6 rounded-xl">
+                    <h3 className="font-bold text-orange-700 mb-3 flex items-center">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full mr-2"></div>
+                        Benefit Free Trial 7 Hari:
+                    </h3>
+                    <ul className="text-sm text-gray-700 space-y-2">
+                        <li className="flex items-center">
+                            <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Akses semua fitur POS
+                        </li>
+                        <li className="flex items-center">
+                            <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Multi outlet management
+                        </li>
+                        <li className="flex items-center">
+                            <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Sistem hutang piutang
+                        </li>
+                        <li className="flex items-center">
+                            <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Laporan lengkap & analytics
+                        </li>
+                        <li className="flex items-center">
+                            <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Customer management
+                        </li>
                     </ul>
                 </div>
 
                 <div className="flex items-center justify-end mt-6">
                     <Link
                         href={route('login')}
-                        className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        className="underline text-sm text-orange-600 hover:text-orange-800 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                     >
                         Sudah punya akun?
                     </Link>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                    <PrimaryButton className="tokaku-button-primary ms-4" disabled={processing}>
                         {processing ? 'Mengirim OTP...' : 'Daftar & Kirim OTP'}
                     </PrimaryButton>
                 </div>

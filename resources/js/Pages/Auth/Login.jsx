@@ -23,11 +23,19 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in - POS Retail" />
+            <Head title="Masuk - TOKAKU" />
 
-            <div className="mb-6 text-center">
-                <h2 className="text-2xl font-bold text-blue-800">POS Retail Login</h2>
-                <p className="text-sm text-blue-600 mt-2">Masuk ke sistem Point of Sale</p>
+            <div className="mb-8 text-center">
+                <div className="flex justify-center mb-6">
+                    <img
+                        src="/logo.png"
+                        alt="TOKAKU"
+                        className="w-20 h-20 object-contain drop-shadow-lg rounded-full"
+                    />
+                </div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-orange-500 bg-clip-text text-transparent mb-2">TOKAKU</h2>
+                <p className="text-orange-600 font-medium mb-1">Aplikasi Toko Kasir Ku</p>
+                <p className="text-sm text-gray-600">Masuk ke sistem Point of Sale</p>
             </div>
 
             {status && (
@@ -92,20 +100,20 @@ export default function Login({ status, canResetPassword }) {
                         {canResetPassword && (
                             <Link
                                 href={route('password.request')}
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                className="rounded-md text-sm text-orange-600 underline hover:text-orange-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                             >
-                                Forgot your password?
+                                Lupa password?
                             </Link>
                         )}
-                        <PrimaryButton className="ms-4" disabled={processing}>
-                            Log in
+                        <PrimaryButton className="tokaku-button-primary ms-4" disabled={processing}>
+                            Masuk
                         </PrimaryButton>
                     </div>
                     <Link
                         href={route('register')}
-                        className="rounded-md text-sm text-blue-600 underline hover:text-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="rounded-md text-sm text-orange-600 underline hover:text-orange-800 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                     >
-                        Register
+                        Daftar Akun
                     </Link>
                 </div>
             </form>

@@ -1,44 +1,129 @@
-/* Custom Logo Colors - Based on provided blue logo */
+/* TOKAKU Brand Colors - Based on provided orange logo */
 :root {
-    --logo-blue-primary: #1E40AF;    /* Blue-700 - Main logo color */
-    --logo-blue-secondary: #3B82F6;  /* Blue-500 - Secondary accent */
-    --logo-blue-light: #DBEAFE;      /* Blue-100 - Light backgrounds */
-    --logo-blue-dark: #1D4ED8;       /* Blue-600 - Hover states */
+    --brand-orange-primary: #EA580C;     /* Orange-600 - Main brand color */
+    --brand-orange-secondary: #FB923C;   /* Orange-400 - Secondary accent */
+    --brand-orange-light: #FED7AA;       /* Orange-200 - Light backgrounds */
+    --brand-orange-dark: #DC2626;        /* Red-600 - Hover states */
+    --brand-yellow-accent: #FDE047;      /* Yellow-300 - Sparkle/accent */
+    --brand-gradient: linear-gradient(135deg, #FB923C 0%, #EA580C 50%, #DC2626 100%);
 }
 
 /* Logo animation for loading states */
 @keyframes logoGlow {
     0%, 100% {
-        box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 0 8px rgba(251, 146, 60, 0.4);
     }
     50% {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+        box-shadow: 0 0 25px rgba(251, 146, 60, 0.7), 0 0 35px rgba(234, 88, 12, 0.5);
+    }
+}
+
+@keyframes sparkle {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
     }
 }
 
 .logo-glow {
-    animation: logoGlow 2s ease-in-out infinite;
+    animation: logoGlow 3s ease-in-out infinite;
 }
 
-/* Brand gradient matching the logo */
+.sparkle-animation {
+    animation: sparkle 2s ease-in-out infinite;
+}
+
+/* Brand gradient matching the TOKAKU logo */
 .brand-gradient {
-    background: linear-gradient(135deg, #3B82F6 0%, #1E40AF 100%);
+    background: var(--brand-gradient);
 }
 
-/* Custom scrollbar to match theme */
+.brand-gradient-light {
+    background: linear-gradient(135deg, #FED7AA 0%, #FB923C 100%);
+}
+
+/* TOKAKU themed components */
+.tokaku-card {
+    background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+    border: 1px solid #FED7AA;
+    box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.1), 0 2px 4px -1px rgba(234, 88, 12, 0.06);
+}
+
+.tokaku-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.1), 0 4px 6px -2px rgba(234, 88, 12, 0.05);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+.tokaku-button-primary {
+    background: var(--brand-gradient);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2);
+    transition: all 0.3s ease;
+}
+
+.tokaku-button-primary:hover {
+    box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Custom scrollbar to match TOKAKU theme */
 ::-webkit-scrollbar {
     width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #F1F5F9;
+    background: #FEF3C7;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #3B82F6;
+    background: linear-gradient(180deg, #FB923C, #EA580C);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #1E40AF;
+    background: linear-gradient(180deg, #EA580C, #DC2626);
+}
+
+/* Floating elements animation */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse effect for interactive elements */
+@keyframes pulse-orange {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.pulse-orange {
+    animation: pulse-orange 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* TOKAKU themed backgrounds */
+.bg-tokaku-pattern {
+    background-image:
+        radial-gradient(circle at 25% 25%, #FED7AA 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, #FDE047 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-position: 0 0, 25px 25px;
 }

@@ -19,9 +19,9 @@ export default function AuthenticatedLayout({ header, children }) {
             href={href}
             className={`${
                 active
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
-            } flex items-center px-4 py-2 text-sm rounded-lg transition-colors duration-150 ease-in-out`}
+                    ? 'bg-gradient-to-r from-orange-50 to-yellow-50 text-orange-700 border-r-2 border-orange-500'
+                    : 'text-gray-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 hover:text-orange-700'
+            } flex items-center px-4 py-3 text-sm rounded-lg transition-all duration-200 ease-in-out transform hover:translate-x-1`}
         >
             {children}
         </Link>
@@ -29,7 +29,8 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const MenuSection = ({ title, children }) => (
         <div className="mb-6">
-            <h3 className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <h3 className="px-4 py-2 text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center">
+                <div className="w-2 h-2 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full mr-2"></div>
                 {title}
             </h3>
             <div className="space-y-1">
@@ -39,11 +40,18 @@ export default function AuthenticatedLayout({ header, children }) {
     );
 
     return (
-        <div className="min-h-screen flex bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="min-h-screen flex bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-100">
+            {/* Decorative background elements */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-10 left-10 w-20 h-20 bg-yellow-200/30 rounded-full blur-xl animate-pulse"></div>
+                <div className="absolute top-32 right-20 w-16 h-16 bg-orange-200/40 rounded-full blur-lg animate-bounce"></div>
+                <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-orange-300/20 rounded-full blur-md float-animation"></div>
+            </div>
+
             {/* Mobile menu button */}
             <button
                 onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
-                className="fixed top-4 left-4 z-50 sm:hidden rounded-md p-2 bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:bg-gray-100 focus:text-gray-500 shadow-lg"
+                className="fixed top-4 left-4 z-50 sm:hidden rounded-xl p-3 bg-white text-orange-600 hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg border border-orange-100"
             >
                 <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                     {!showingNavigationDropdown ? (
@@ -56,14 +64,14 @@ export default function AuthenticatedLayout({ header, children }) {
 
             {/* Sidebar */}
             <div
-                className={`bg-white w-64 h-screen shadow-lg fixed left-0 top-0 ${
+                className={`bg-gradient-to-b from-white to-orange-50/30 w-64 h-screen shadow-xl fixed left-0 top-0 ${
                     showingNavigationDropdown ? 'translate-x-0' : '-translate-x-full sm:translate-x-0'
-                } transition-transform duration-300 ease-in-out z-40 flex flex-col`}
+                } transition-all duration-300 ease-in-out z-40 flex flex-col border-r border-orange-100`}
             >
                 {/* Logo Section */}
-                <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <div className="p-6 border-b border-orange-100 flex justify-between items-center bg-gradient-to-r from-orange-50 to-yellow-50">
                     <Link href="/" className="flex-1 flex justify-center">
-                        <ApplicationLogo className="h-9 w-auto fill-current text-gray-800" />
+                        <ApplicationLogo className="h-12 w-auto logo-glow" />
                     </Link>
                 </div>
 
@@ -229,15 +237,18 @@ export default function AuthenticatedLayout({ header, children }) {
                 </div>
 
                 {/* User Profile Section */}
-                <div className="border-t border-gray-200 p-4 sticky bottom-0 left-0 right-0 w-full bg-white mt-auto">
+                <div className="border-t border-orange-100 p-4 sticky bottom-0 left-0 right-0 w-full bg-gradient-to-r from-orange-50 to-yellow-50 mt-auto">
                     <Dropdown placement="top-start">
                         <Dropdown.Trigger>
-                            <button className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 focus:outline-none">
-                                <div className="flex-1 text-left">
-                                    <div className="font-medium">{user.name}</div>
-                                    <div className="text-sm text-gray-500">{user.email}</div>
+                            <button className="flex items-center w-full px-3 py-3 text-sm font-medium text-gray-700 rounded-xl hover:bg-gradient-to-r hover:from-orange-100 hover:to-yellow-100 hover:text-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all duration-200">
+                                <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">
+                                    {user.name.charAt(0).toUpperCase()}
                                 </div>
-                                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="flex-1 text-left">
+                                    <div className="font-semibold text-gray-800">{user.name}</div>
+                                    <div className="text-xs text-orange-600 font-medium">{user.email}</div>
+                                </div>
+                                <svg className="w-4 h-4 ml-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -257,9 +268,12 @@ export default function AuthenticatedLayout({ header, children }) {
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0 sm:ml-64">
                 {header && (
-                    <header className="bg-white shadow-sm sm:mt-4 rounded-lg">
-                        <div className="py-6 px-4 sm:px-6 lg:px-8">
-                            {header}
+                    <header className="bg-white/80 backdrop-blur-sm shadow-sm sm:mt-4 rounded-xl border border-orange-100 mx-4">
+                        <div className="py-6 px-6 lg:px-8">
+                            <div className="flex items-center">
+                                <div className="w-1 h-8 bg-gradient-to-b from-orange-400 to-yellow-400 rounded-full mr-4"></div>
+                                {header}
+                            </div>
                         </div>
                     </header>
                 )}
