@@ -20,6 +20,13 @@ export default function Report({ auth, products, movements = [], summary = null,
         });
     }, [filters]);
 
+    const handleInputChange = (key, value) => {
+        setData(prev => ({
+            ...prev,
+            [key]: value
+        }));
+    };
+
     const submit = (e) => {
         e.preventDefault();
         router.get(route('stock.report'), data, {
@@ -45,7 +52,7 @@ export default function Report({ auth, products, movements = [], summary = null,
                                     <select
                                         id="product_id"
                                         value={data.product_id}
-                                        onChange={e => setData('product_id', e.target.value)}
+                                        onChange={e => handleInputChange('product_id', e.target.value)}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                     >
                                         <option value="">Semua Produk</option>
@@ -59,7 +66,7 @@ export default function Report({ auth, products, movements = [], summary = null,
                                     <select
                                         id="type"
                                         value={data.type}
-                                        onChange={e => setData('type', e.target.value)}
+                                        onChange={e => handleInputChange('type', e.target.value)}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                     >
                                         <option value="">Semua Tipe</option>
@@ -75,7 +82,7 @@ export default function Report({ auth, products, movements = [], summary = null,
                                         type="date"
                                         id="start_date"
                                         value={data.start_date}
-                                        onChange={e => setData('start_date', e.target.value)}
+                                        onChange={e => handleInputChange('start_date', e.target.value)}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                     />
                                 </div>
@@ -85,7 +92,7 @@ export default function Report({ auth, products, movements = [], summary = null,
                                         type="date"
                                         id="end_date"
                                         value={data.end_date}
-                                        onChange={e => setData('end_date', e.target.value)}
+                                        onChange={e => handleInputChange('end_date', e.target.value)}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                                     />
                                 </div>

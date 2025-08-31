@@ -183,6 +183,10 @@ class StockController extends Controller
     {
         $products = Product::select('id', 'name')->get();
 
+        // Set default date range to current month if no dates provided
+        $startDate = $request->start_date ?: date('Y-m-01'); // First day of current month
+        $endDate = $request->end_date ?: date('Y-m-t'); // Last day of current month
+
         $query = StockMovement::with(['product', 'user']);
 
         if ($request->product_id) {
@@ -193,12 +197,11 @@ class StockController extends Controller
             $query->where('type', $request->type);
         }
 
-        if ($request->start_date && $request->end_date) {
-            $query->whereBetween('created_at', [
-                $request->start_date . ' 00:00:00',
-                $request->end_date . ' 23:59:59'
-            ]);
-        }
+        // Always apply date filter (either provided or default)
+        $query->whereBetween('created_at', [
+            $startDate . ' 00:00:00',
+            $endDate . ' 23:59:59'
+        ]);
 
         $movements = $query->orderBy('created_at', 'desc')->get();
 
@@ -214,10 +217,10 @@ class StockController extends Controller
             'movements' => $movements,
             'summary' => $summary,
             'filters' => [
-                'product_id' => $request->product_id,
-                'type' => $request->type,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
+                'product_id' => $request->product_id ?: '',
+                'type' => $request->type ?: '',
+                'start_date' => $startDate,
+                'end_date' => $endDate,
             ]
         ]);
     }
