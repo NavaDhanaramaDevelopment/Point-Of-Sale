@@ -1,9 +1,20 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import { useEffect, useRef } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function Payment({ subscription, paymentToken, midtransClientKey }) {
+export default function Payment({ subscription, paymentToken, orderId, midtransClientKey }) {
     const isPaymentProcessed = useRef(false);
+    const [isSimulating, setIsSimulating] = useState(false);
+
+    // Debug props
+    useEffect(() => {
+        console.log('Payment component props:', {
+            subscription,
+            paymentToken,
+            orderId,
+            midtransClientKey
+        });
+    }, []);
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('id-ID', {
@@ -12,6 +23,51 @@ export default function Payment({ subscription, paymentToken, midtransClientKey 
             minimumFractionDigits: 0
         }).format(price);
     };
+
+    const handleSimulatePayment = () => {
+        setIsSimulating(true);
+
+        console.log('Simulating payment for order:', orderId);
+
+        router.post(route('subscription.simulate.payment'), {
+            order_id: orderId
+        }, {
+            onSuccess: (response) => {
+                console.log('Simulation success:', response);
+                if (response.props && response.props.redirect) {
+                    window.location.href = response.props.redirect;
+                } else {
+                    window.location.href = route('subscription.success', { order_id: orderId });
+                }
+            },
+            onError: (errors) => {
+                console.error('Simulation error:', errors);
+                alert('Gagal mensimulasikan pembayaran: ' + (errors.message || 'Unknown error'));
+                setIsSimulating(false);
+            }
+        });
+    };
+
+    // Early return if missing required props
+    if (!subscription) {
+        return (
+            <AuthenticatedLayout>
+                <Head title="Payment Error" />
+                <div className="py-12">
+                    <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                            <h2 className="text-lg font-semibold text-red-800 mb-2">Error</h2>
+                            <p className="text-red-600">Data subscription tidak ditemukan. Silakan coba lagi.</p>
+                            <a href={route('subscription.index')}
+                               className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                Kembali ke Subscription
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
 
     useEffect(() => {
         if (isPaymentProcessed.current || !paymentToken || !midtransClientKey) return;
@@ -129,6 +185,21 @@ export default function Payment({ subscription, paymentToken, midtransClientKey 
                                 <p className="text-sm text-gray-500 mb-6">
                                     Jika popup pembayaran tidak muncul, pastikan popup blocker dinonaktifkan
                                 </p>
+
+                                {/* Testing Mode - Simulate Payment Button */}
+                                {/* <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                    <h3 className="text-sm font-semibold text-yellow-800 mb-2">Mode Testing/Sandbox</h3>
+                                    <p className="text-xs text-yellow-700 mb-3">
+                                        Anda sedang dalam mode testing. Gunakan tombol di bawah untuk mensimulasikan pembayaran sukses:
+                                    </p>
+                                    <button
+                                        onClick={handleSimulatePayment}
+                                        disabled={isSimulating}
+                                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+                                    >
+                                        {isSimulating ? 'Memproses...' : '✅ Simulasi Pembayaran Sukses'}
+                                    </button>
+                                </div> */}
 
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-center space-x-4 text-sm text-gray-600">

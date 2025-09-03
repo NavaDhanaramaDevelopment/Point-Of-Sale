@@ -11,18 +11,22 @@ export default function Index({ subscriptions, userSubscription, midtransClientK
             return;
         }
 
+        console.log('Attempting to subscribe to:', subscription);
+
         router.post(
             route('subscription.subscribe'),
             { subscription_id: subscription.id },
             {
-                preserveState: true,
+                preserveState: false, // Changed to false to allow full page navigation
+                onStart: () => {
+                    console.log('Request started');
+                },
                 onSuccess: (page) => {
-                    // Jika backend mengembalikan inertia render Payment, Inertia akan handle
-                    if (page.props && page.props.redirect) {
-                        window.location.href = page.props.redirect;
-                    }
+                    console.log('Request successful:', page);
+                    // Inertia will handle the rendering automatically
                 },
                 onError: (errors) => {
+                    console.error('Request errors:', errors);
                     // Tampilkan error validasi dari backend
                     if (errors && errors.subscription_id) {
                         alert(errors.subscription_id);
@@ -32,6 +36,9 @@ export default function Index({ subscriptions, userSubscription, midtransClientK
                         alert('Terjadi kesalahan. Silakan coba lagi.');
                     }
                 },
+                onFinish: () => {
+                    console.log('Request finished');
+                }
             }
         );
     };

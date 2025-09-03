@@ -60,6 +60,25 @@ class MidtransService
     }
 
     /**
+     * Create transaction and get snap token
+     */
+    public function createTransaction(array $paymentData): array
+    {
+        try {
+            $snapToken = Snap::getSnapToken($paymentData);
+            return [
+                'success' => true,
+                'snap_token' => $snapToken
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Get transaction status from Midtrans
      */
     public function getTransactionStatus(string $orderId): array
@@ -136,5 +155,13 @@ class MidtransService
                 'message' => $e->getMessage()
             ];
         }
+    }
+
+    /**
+     * Handle notification from Midtrans webhook
+     */
+    public function handleNotification(array $notification): array
+    {
+        return $this->processNotification($notification);
     }
 }

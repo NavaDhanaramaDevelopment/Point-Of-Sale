@@ -60,8 +60,9 @@ class SubscriptionController extends Controller
                 'user_id' => $user->id,
                 'subscription_id' => $subscription->id,
                 'midtrans_order_id' => $orderId,
-                'status' => 'pending',
+                'status' => 'active', // Set to active initially, will be updated by webhook
                 'payment_status' => 'pending',
+                'amount_paid' => $subscription->price,
                 'started_at' => now(),
                 'expired_at' => now()->addMonths($subscription->duration),
             ]);
@@ -92,11 +93,12 @@ class SubscriptionController extends Controller
                 return Inertia::render('Subscription/Payment', [
                     'subscription' => $subscription,
                     'paymentToken' => $snapToken['snap_token'],
+                    'orderId' => $orderId,
                     'midtransClientKey' => config('midtrans.client_key')
                 ]);
             } else {
                 $userSubscription->delete();
-                return redirect()->back()->with('error', 'Gagal membuat token pembayaran');
+                return redirect()->back()->with('error', 'Gagal membuat token pembayaran: ' . ($snapToken['message'] ?? 'Unknown error'));
             }
 
         } catch (\Exception $e) {
@@ -303,5 +305,41 @@ class SubscriptionController extends Controller
         ]);
 
         return redirect()->route('subscription.index')->with('success', 'Langganan berhasil dibatalkan.');
+    }
+
+    /**
+     * Simulate payment success for testing (sandbox mode only)
+     */
+    public function simulatePayment(Request $request)
+    {
+        // Only allow in sandbox/testing mode
+        if (config('midtrans.is_production')) {
+            return response()->json(['error' => 'Not available in production'], 403);
+        }
+
+        $request->validate([
+            'order_id' => 'required|string'
+        ]);
+
+        $orderId = $request->order_id;
+        $userSubscription = UserSubscription::where('midtrans_order_id', $orderId)->first();
+
+        if (!$userSubscription) {
+            return response()->json(['error' => 'Subscription not found'], 404);
+        }
+
+        // Simulate successful payment
+        $userSubscription->update([
+            'status' => 'active',
+            'payment_status' => 'paid',
+            'midtrans_transaction_id' => 'SIMULATE-' . time(),
+            'payment_method' => 'simulate',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment simulated successfully',
+            'redirect' => route('subscription.success', ['order_id' => $orderId])
+        ]);
     }
 }
